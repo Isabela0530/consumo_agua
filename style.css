@@ -1,0 +1,313 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+    min-height: 100vh;
+    transition: 0.3s;
+}
+
+header {
+    background: #222;
+    color: white;
+    padding: 25px 8%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin-bottom: 5px;
+}
+
+header p {
+    opacity: 0.7;
+}
+
+#btnTema {
+    border: none;
+    background: #444;
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+main {
+    width: 90%;
+    max-width: 1100px;
+    margin: 30px auto;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.card h2 {
+    margin-bottom: 5px;
+}
+
+.card > p {
+    color: #777;
+    margin-bottom: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin: 20px 0;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.campo label {
+    font-weight: bold;
+}
+
+.campo input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+}
+
+.campo input:focus {
+    border-color: #333;
+}
+
+.btn-principal {
+    background: #222;
+    color: white;
+    border: none;
+    padding: 13px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-principal:hover {
+    opacity: 0.85;
+}
+
+.titulo-secao {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.titulo-secao p {
+    color: #777;
+    margin-top: 5px;
+}
+
+.btn-perigo {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.caminhada {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.caminhada:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.info-caminhada {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.rota {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.detalhes {
+    color: #777;
+    font-size: 14px;
+}
+
+.calorias {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.acoes {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn-excluir {
+    background: #dc3545;
+    color: white;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 17px;
+}
+
+.sem-registros {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+
+.grafico-container {
+    position: relative;
+    width: 100%;
+    height: 350px;
+}
+
+
+/* MODAL */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal.ativo {
+    display: flex;
+}
+
+.modal-conteudo {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.btn-fechar {
+    border: none;
+    background: none;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.modal .campo {
+    margin-bottom: 15px;
+}
+
+
+/* TEMA ESCURO */
+
+body.escuro {
+    background: #121212;
+    color: white;
+}
+
+body.escuro .card,
+body.escuro .modal-conteudo {
+    background: #1e1e1e;
+}
+
+body.escuro .campo input {
+    background: #2a2a2a;
+    color: white;
+    border-color: #444;
+}
+
+body.escuro .caminhada {
+    border-color: #444;
+}
+
+body.escuro .detalhes,
+body.escuro .titulo-secao p,
+body.escuro .card > p {
+    color: #aaa;
+}
+
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 700px) {
+
+    header {
+        padding: 20px;
+    }
+
+    main {
+        width: 94%;
+        margin: 20px auto;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .titulo-secao {
+        align-items: flex-start;
+        gap: 15px;
+        flex-direction: column;
+    }
+
+    .caminhada {
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .acoes {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .grafico-container {
+        height: 280px;
+    }
+}

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Caminhadas x Calorias</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <header>
+        <div>
+            <h1>🚶 Caminhadas</h1>
+            <p>Histórico de caminhadas e gasto calórico</p>
+        </div>
+
+        <button id="btnTema" onclick="alternarTema()">🌙</button>
+    </header>
+
+    <main>
+
+        <!-- FORMULÁRIO -->
+        <section class="card">
+            <h2>Nova caminhada</h2>
+
+            <form id="formCaminhada">
+
+                <div class="form-grid">
+
+                    <div class="campo">
+                        <label for="data">Data</label>
+                        <input type="date" id="data" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="partida">Partida</label>
+                        <input
+                            type="text"
+                            id="partida"
+                            placeholder="Ex: Casa"
+                            required
+                        >
+                    </div>
+
+                    <div class="campo">
+                        <label for="chegada">Chegada</label>
+                        <input
+                            type="text"
+                            id="chegada"
+                            placeholder="Ex: Parque"
+                            required
+                        >
+                    </div>
+
+                    <div class="campo">
+                        <label for="distancia">Distância (km)</label>
+                        <input
+                            type="number"
+                            id="distancia"
+                            min="0.1"
+                            step="0.1"
+                            placeholder="Ex: 5"
+                            required
+                        >
+                    </div>
+
+                    <div class="campo">
+                        <label for="peso">Peso atual (kg)</label>
+                        <input
+                            type="number"
+                            id="peso"
+                            min="1"
+                            step="0.1"
+                            placeholder="Ex: 60"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn-principal">
+                    + Adicionar caminhada
+                </button>
+
+            </form>
+        </section>
+
+
+        <!-- HISTÓRICO -->
+        <section class="card">
+
+            <div class="titulo-secao">
+                <div>
+                    <h2>Histórico</h2>
+                    <p id="totalCaminhadas">0 caminhadas registradas</p>
+                </div>
+
+                <button
+                    id="btnLimpar"
+                    class="btn-perigo"
+                    onclick="limparTudo()"
+                >
+                    Limpar tudo
+                </button>
+            </div>
+
+            <div id="listaCaminhadas" class="lista">
+                <!-- Caminhadas serão inseridas pelo JavaScript -->
+            </div>
+
+        </section>
+
+
+        <!-- GRÁFICO -->
+        <section class="card">
+
+            <h2>Comparativo de calorias</h2>
+            <p>Gasto calórico das suas caminhadas</p>
+
+            <div class="grafico-container">
+                <canvas id="graficoCalorias"></canvas>
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- MODAL DE EDIÇÃO -->
+    <div id="modal" class="modal">
+
+        <div class="modal-conteudo">
+
+            <div class="modal-header">
+                <h2>Editar caminhada</h2>
+
+                <button onclick="fecharModal()" class="btn-fechar">
+                    ×
+                </button>
+            </div>
+
+            <form id="formEditar">
+
+                <input type="hidden" id="editarId">
+
+                <div class="campo">
+                    <label for="editarData">Data</label>
+                    <input type="date" id="editarData" required>
+                </div>
+
+                <div class="campo">
+                    <label for="editarPartida">Partida</label>
+                    <input type="text" id="editarPartida" required>
+                </div>
+
+                <div class="campo">
+                    <label for="editarChegada">Chegada</label>
+                    <input type="text" id="editarChegada" required>
+                </div>
+
+                <div class="campo">
+                    <label for="editarDistancia">Distância (km)</label>
+                    <input
+                        type="number"
+                        id="editarDistancia"
+                        min="0.1"
+                        step="0.1"
+                        required
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="editarPeso">Peso atual (kg)</label>
+                    <input
+                        type="number"
+                        id="editarPeso"
+                        min="1"
+                        step="0.1"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn-principal">
+                    Salvar alterações
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
