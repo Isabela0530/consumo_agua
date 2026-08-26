@@ -1,397 +1,842 @@
-let caminhadas = JSON.parse(localStorage.getItem("caminhadas")) || [];
+let registros =
+    JSON.parse(
+        localStorage.getItem("registrosAgua")
+    ) || [];
+
 
 let grafico;
 
 
-// CALCULAR CALORIAS
-function calcularCalorias(peso, distancia) {
-    return 0.7 * peso * distancia;
+/*
+    META DIÁRIA
+
+    Recomendação:
+    35 ml por kg corporal
+*/
+
+function calcularMeta(peso) {
+
+    return 35 * peso;
+
 }
 
 
-// SALVAR NO LOCAL STORAGE
+/*
+    PORCENTAGEM DA META
+*/
+
+function calcularPorcentagem(
+    quantidade,
+    peso
+) {
+
+    const meta = calcularMeta(peso);
+
+    return (
+        quantidade / meta
+    ) * 100;
+
+}
+
+
+/*
+    SALVAR
+*/
+
 function salvar() {
-    localStorage.setItem("caminhadas", JSON.stringify(caminhadas));
+
+    localStorage.setItem(
+        "registrosAgua",
+        JSON.stringify(registros)
+    );
+
 }
 
 
-// MOSTRAR CAMINHADAS
-function renderizarCaminhadas() {
+/*
+    DATA DE HOJE
+*/
 
-    const lista = document.getElementById("listaCaminhadas");
-    const total = document.getElementById("totalCaminhadas");
+function obterDataHoje() {
+
+    const hoje = new Date();
+
+    const ano = hoje.getFullYear();
+
+    const mes =
+        String(
+            hoje.getMonth() + 1
+        ).padStart(2, "0");
+
+    const dia =
+        String(
+            hoje.getDate()
+        ).padStart(2, "0");
+
+    return `${ano}-${mes}-${dia}`;
+
+}
+
+
+/*
+    FORMATAR DATA
+*/
+
+function formatarData(data) {
+
+    const partes =
+        data.split("-");
+
+    return (
+        `${partes[2]}/` +
+        `${partes[1]}/` +
+        `${partes[0]}`
+    );
+
+}
+
+
+/*
+    FORMATAR ML
+*/
+
+function formatarMl(valor) {
+
+    return valor.toLocaleString(
+        "pt-BR"
+    ) + " ml";
+
+}
+
+
+/*
+    RENDERIZAR LISTA
+*/
+
+function renderizarRegistros() {
+
+    const lista =
+        document.getElementById(
+            "listaRegistros"
+        );
+
+
+    const totalRegistros =
+        document.getElementById(
+            "totalRegistros"
+        );
+
 
     lista.innerHTML = "";
 
-    total.textContent =
-        caminhadas.length === 1
-            ? "1 caminhada registrada"
-            : `${caminhadas.length} caminhadas registradas`;
+
+    totalRegistros.textContent =
+        registros.length === 1
+            ? "1 registro"
+            : `${registros.length} registros`;
 
 
-    if (caminhadas.length === 0) {
+    if (registros.length === 0) {
 
         lista.innerHTML = `
             <div class="sem-registros">
-                <h3>Nenhuma caminhada registrada</h3>
-                <p>Adicione sua primeira caminhada acima.</p>
+
+                <h3>
+                    Nenhum consumo registrado
+                </h3>
+
+                <p>
+                    Adicione seu primeiro registro acima.
+                </p>
+
             </div>
         `;
 
+        atualizarResumo();
+
         atualizarGrafico();
+
         return;
+
     }
 
 
-    caminhadas.forEach(caminhada => {
+    registros.forEach(registro => {
 
-        const calorias = calcularCalorias(
-            caminhada.peso,
-            caminhada.distancia
-        );
+        const meta =
+            calcularMeta(
+                registro.peso
+            );
 
-        const item = document.createElement("div");
 
-        item.className = "caminhada";
+        const porcentagem =
+            calcularPorcentagem(
+                registro.quantidade,
+                registro.peso
+            );
 
-        item.onclick = () => abrirModal(caminhada.id);
+
+        const porcentagemVisual =
+            Math.min(
+                porcentagem,
+                100
+            );
+
+
+        const item =
+            document.createElement("div");
+
+
+        item.className =
+            "registro";
+
+
+        item.onclick = () =>
+            abrirModal(
+                registro.id
+            );
+
 
         item.innerHTML = `
-            <div class="info-caminhada">
 
-                <div class="rota">
-                    📍 ${caminhada.partida}
-                    → ${caminhada.chegada}
-                </div>
+            <div class="registro-topo">
 
-                <div class="detalhes">
-                    📅 ${formatarData(caminhada.data)}
-                    • ${caminhada.distancia} km
-                    • ${caminhada.peso} kg
-                </div>
-
-            </div>
-
-            <div class="acoes">
-
-                <div class="calorias">
-                    ${calorias.toFixed(1)} kcal
+                <div class="data">
+                    📅 ${formatarData(
+                        registro.data
+                    )}
                 </div>
 
                 <button
                     class="btn-excluir"
-                    onclick="event.stopPropagation(); excluirCaminhada(${caminhada.id})"
+                    onclick="
+                        event.stopPropagation();
+                        excluirRegistro(${registro.id})
+                    "
                 >
                     🗑️
                 </button>
 
             </div>
+
+
+            <div class="registro-info">
+
+                <div class="info-item">
+
+                    <span>
+                        Consumo
+                    </span>
+
+                    <strong>
+                        ${formatarMl(
+                            registro.quantidade
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span>
+                        Peso
+                    </span>
+
+                    <strong>
+                        ${registro.peso} kg
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span>
+                        Meta diária
+                    </span>
+
+                    <strong>
+                        ${formatarMl(
+                            meta
+                        )}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="progresso">
+
+                <div class="progresso-header">
+
+                    <span>
+                        Meta atingida
+                    </span>
+
+                    <strong>
+                        ${porcentagem.toFixed(1)}%
+                    </strong>
+
+                </div>
+
+
+                <div class="barra">
+
+                    <div
+                        class="barra-preenchida"
+                        style="
+                            width:
+                            ${porcentagemVisual}%
+                        "
+                    ></div>
+
+                </div>
+
+            </div>
+
         `;
+
 
         lista.appendChild(item);
 
     });
 
+
+    atualizarResumo();
+
     atualizarGrafico();
+
 }
 
 
-// FORMATAR DATA
-function formatarData(data) {
+/*
+    RESUMO DO DIA
+*/
 
-    const partes = data.split("-");
+function atualizarResumo() {
 
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    const hoje =
+        obterDataHoje();
+
+
+    const registrosHoje =
+        registros.filter(
+            registro =>
+                registro.data === hoje
+        );
+
+
+    const total =
+        registrosHoje.reduce(
+            (
+                soma,
+                registro
+            ) =>
+                soma +
+                registro.quantidade,
+
+            0
+        );
+
+
+    let peso = 0;
+
+
+    if (registrosHoje.length > 0) {
+
+        peso =
+            registrosHoje[
+                registrosHoje.length - 1
+            ].peso;
+
+    }
+    else if (registros.length > 0) {
+
+        peso =
+            registros[
+                registros.length - 1
+            ].peso;
+
+    }
+
+
+    const meta =
+        peso > 0
+            ? calcularMeta(peso)
+            : 0;
+
+
+    const porcentagem =
+        meta > 0
+            ? (total / meta) * 100
+            : 0;
+
+
+    document.getElementById(
+        "totalHoje"
+    ).textContent =
+        formatarMl(total);
+
+
+    document.getElementById(
+        "metaHoje"
+    ).textContent =
+        formatarMl(meta);
+
+
+    document.getElementById(
+        "porcentagemHoje"
+    ).textContent =
+        porcentagem.toFixed(1) + "%";
+
 }
 
 
-// ADICIONAR CAMINHADA
+/*
+    ADICIONAR REGISTRO
+*/
+
 document
-    .getElementById("formCaminhada")
-    .addEventListener("submit", function(event) {
+    .getElementById(
+        "formAgua"
+    )
+    .addEventListener(
+        "submit",
+        function(event) {
 
-        event.preventDefault();
-
-        const novaCaminhada = {
-
-            id: Date.now(),
-
-            data: document.getElementById("data").value,
-
-            partida: document
-                .getElementById("partida")
-                .value,
-
-            chegada: document
-                .getElementById("chegada")
-                .value,
-
-            distancia: Number(
-                document.getElementById("distancia").value
-            ),
-
-            peso: Number(
-                document.getElementById("peso").value
-            )
-
-        };
+            event.preventDefault();
 
 
-        caminhadas.push(novaCaminhada);
+            const registro = {
 
-        salvar();
+                id: Date.now(),
 
-        renderizarCaminhadas();
+                data:
+                    document.getElementById(
+                        "data"
+                    ).value,
 
-        this.reset();
+                quantidade:
+                    Number(
+                        document.getElementById(
+                            "quantidade"
+                        ).value
+                    ),
 
-    });
+                peso:
+                    Number(
+                        document.getElementById(
+                            "peso"
+                        ).value
+                    )
+
+            };
 
 
-// EXCLUIR
-function excluirCaminhada(id) {
+            registros.push(
+                registro
+            );
 
-    caminhadas = caminhadas.filter(
-        caminhada => caminhada.id !== id
+
+            salvar();
+
+            renderizarRegistros();
+
+
+            this.reset();
+
+
+            document.getElementById(
+                "data"
+            ).value =
+                obterDataHoje();
+
+        }
     );
+
+
+/*
+    EXCLUIR
+*/
+
+function excluirRegistro(id) {
+
+    registros =
+        registros.filter(
+            registro =>
+                registro.id !== id
+        );
+
 
     salvar();
 
-    renderizarCaminhadas();
+    renderizarRegistros();
+
 }
 
 
-// LIMPAR TUDO
+/*
+    LIMPAR TUDO
+*/
+
 function limparTudo() {
 
-    if (caminhadas.length === 0) {
+    if (registros.length === 0) {
         return;
     }
 
-    const confirmar = confirm(
-        "Deseja realmente excluir todas as caminhadas?"
-    );
+
+    const confirmar =
+        confirm(
+            "Deseja realmente excluir todos os registros?"
+        );
+
 
     if (!confirmar) {
         return;
     }
 
-    caminhadas = [];
+
+    registros = [];
 
     salvar();
 
-    renderizarCaminhadas();
+    renderizarRegistros();
+
 }
 
 
-// ABRIR MODAL
+/*
+    ABRIR MODAL
+*/
+
 function abrirModal(id) {
 
-    const caminhada = caminhadas.find(
-        item => item.id === id
-    );
+    const registro =
+        registros.find(
+            item =>
+                item.id === id
+        );
 
-    if (!caminhada) {
+
+    if (!registro) {
         return;
     }
 
 
-    document.getElementById("editarId").value = caminhada.id;
-
-    document.getElementById("editarData").value =
-        caminhada.data;
-
-    document.getElementById("editarPartida").value =
-        caminhada.partida;
-
-    document.getElementById("editarChegada").value =
-        caminhada.chegada;
-
-    document.getElementById("editarDistancia").value =
-        caminhada.distancia;
-
-    document.getElementById("editarPeso").value =
-        caminhada.peso;
+    document.getElementById(
+        "editarId"
+    ).value =
+        registro.id;
 
 
-    document
-        .getElementById("modal")
-        .classList.add("ativo");
+    document.getElementById(
+        "editarData"
+    ).value =
+        registro.data;
+
+
+    document.getElementById(
+        "editarQuantidade"
+    ).value =
+        registro.quantidade;
+
+
+    document.getElementById(
+        "editarPeso"
+    ).value =
+        registro.peso;
+
+
+    document.getElementById(
+        "modal"
+    ).classList.add(
+        "ativo"
+    );
+
 }
 
 
-// FECHAR MODAL
+/*
+    FECHAR MODAL
+*/
+
 function fecharModal() {
 
-    document
-        .getElementById("modal")
-        .classList.remove("ativo");
+    document.getElementById(
+        "modal"
+    ).classList.remove(
+        "ativo"
+    );
+
 }
 
 
-// EDITAR CAMINHADA
+/*
+    EDITAR
+*/
+
 document
-    .getElementById("formEditar")
-    .addEventListener("submit", function(event) {
+    .getElementById(
+        "formEditar"
+    )
+    .addEventListener(
+        "submit",
+        function(event) {
 
-        event.preventDefault();
+            event.preventDefault();
 
-        const id = Number(
-            document.getElementById("editarId").value
-        );
 
-        const caminhada = caminhadas.find(
-            item => item.id === id
-        );
+            const id =
+                Number(
+                    document.getElementById(
+                        "editarId"
+                    ).value
+                );
 
-        if (!caminhada) {
-            return;
+
+            const registro =
+                registros.find(
+                    item =>
+                        item.id === id
+                );
+
+
+            if (!registro) {
+                return;
+            }
+
+
+            registro.data =
+                document.getElementById(
+                    "editarData"
+                ).value;
+
+
+            registro.quantidade =
+                Number(
+                    document.getElementById(
+                        "editarQuantidade"
+                    ).value
+                );
+
+
+            registro.peso =
+                Number(
+                    document.getElementById(
+                        "editarPeso"
+                    ).value
+                );
+
+
+            salvar();
+
+            renderizarRegistros();
+
+            fecharModal();
+
         }
+    );
 
 
-        caminhada.data =
-            document.getElementById("editarData").value;
+/*
+    GRÁFICO
+*/
 
-        caminhada.partida =
-            document.getElementById("editarPartida").value;
-
-        caminhada.chegada =
-            document.getElementById("editarChegada").value;
-
-        caminhada.distancia =
-            Number(
-                document.getElementById("editarDistancia").value
-            );
-
-        caminhada.peso =
-            Number(
-                document.getElementById("editarPeso").value
-            );
-
-
-        salvar();
-
-        renderizarCaminhadas();
-
-        fecharModal();
-
-    });
-
-
-// GRÁFICO
 function atualizarGrafico() {
 
     const canvas =
-        document.getElementById("graficoCalorias");
+        document.getElementById(
+            "graficoAgua"
+        );
 
-    const labels = caminhadas.map(
-        (caminhada, index) =>
-            `Caminhada ${index + 1}`
-    );
 
-    const valores = caminhadas.map(
-        caminhada =>
-            calcularCalorias(
-                caminhada.peso,
-                caminhada.distancia
-            )
-    );
+    const labels =
+        registros.map(
+            registro =>
+                formatarData(
+                    registro.data
+                )
+        );
+
+
+    const consumos =
+        registros.map(
+            registro =>
+                registro.quantidade
+        );
+
+
+    const metas =
+        registros.map(
+            registro =>
+                calcularMeta(
+                    registro.peso
+                )
+        );
 
 
     if (grafico) {
+
         grafico.destroy();
+
     }
 
 
-    grafico = new Chart(canvas, {
+    grafico =
+        new Chart(
+            canvas,
+            {
 
-        type: "bar",
+                type: "bar",
 
-        data: {
+                data: {
 
-            labels: labels,
+                    labels: labels,
 
-            datasets: [
+                    datasets: [
 
-                {
-                    label: "Calorias gastas (kcal)",
+                        {
 
-                    data: valores,
+                            label:
+                                "Consumo (ml)",
 
-                    borderWidth: 1
+                            data:
+                                consumos,
 
-                }
+                            borderWidth: 1
 
-            ]
+                        },
 
-        },
+                        {
 
-        options: {
+                            label:
+                                "Meta diária (ml)",
 
-            responsive: true,
+                            data:
+                                metas,
 
-            maintainAspectRatio: false,
+                            borderWidth: 1
 
-            scales: {
+                        }
 
-                y: {
+                    ]
 
-                    beginAtZero: true,
+                },
 
-                    title: {
 
-                        display: true,
+                options: {
 
-                        text: "Calorias (kcal)"
+                    responsive: true,
+
+                    maintainAspectRatio:
+                        false,
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero:
+                                true,
+
+                            title: {
+
+                                display:
+                                    true,
+
+                                text:
+                                    "Quantidade (ml)"
+
+                            }
+
+                        }
 
                     }
 
                 }
 
             }
-
-        }
-
-    });
+        );
 
 }
 
 
-// TEMA
+/*
+    TEMA
+*/
+
 function alternarTema() {
 
-    document.body.classList.toggle("escuro");
+    document.body.classList.toggle(
+        "escuro"
+    );
+
 
     const escuro =
-        document.body.classList.contains("escuro");
+        document.body.classList.contains(
+            "escuro"
+        );
 
-    document.getElementById("btnTema").textContent =
-        escuro ? "☀️" : "🌙";
+
+    document.getElementById(
+        "btnTema"
+    ).textContent =
+        escuro
+            ? "☀️"
+            : "🌙";
+
 
     localStorage.setItem(
-        "tema",
-        escuro ? "escuro" : "claro"
+        "temaAgua",
+        escuro
+            ? "escuro"
+            : "claro"
     );
+
 }
 
 
-// CARREGAR TEMA
+/*
+    CARREGAR TEMA
+*/
+
 function carregarTema() {
 
     const tema =
-        localStorage.getItem("tema");
+        localStorage.getItem(
+            "temaAgua"
+        );
+
 
     if (tema === "escuro") {
 
-        document.body.classList.add("escuro");
+        document.body.classList.add(
+            "escuro"
+        );
 
-        document.getElementById("btnTema").textContent =
+
+        document.getElementById(
+            "btnTema"
+        ).textContent =
             "☀️";
+
     }
+
 }
 
 
-// INICIALIZAÇÃO
+/*
+    INICIALIZAÇÃO
+*/
+
+document.getElementById(
+    "data"
+).value =
+    obterDataHoje();
+
+
 carregarTema();
 
-renderizarCaminhadas();
+renderizarRegistros();
