@@ -1,4 +1,4 @@
-# Consumo de Água 💧
+# Consumo de Água 
 
 Aplicação web responsiva desenvolvida para registrar e acompanhar o consumo de água, calculando automaticamente a meta diária e a porcentagem atingida de acordo com o peso corporal.
 
